@@ -1,0 +1,36 @@
+version: "3.1"
+services:  
+  register-server:
+    container_name: register-server
+    image: $DOCKER_HUB_USERNAME/p2-register-server:latest
+    environment:
+      - PORT=8761
+    ports:
+      - "8761:8761"
+    networks:
+      - spring
+      - gitlab-network
+    restart: always
+
+  api-gateway:
+    container_name: api-gateway
+    image: $DOCKER_HUB_USERNAME/$CI_PROJECT_NAME:latest
+    environment:
+      - ALLOWED_ORIGINS=*
+      - SECRET=ueesmgra-123540
+      - EUREKA_SERVER=http://register-server:8761/eureka/=value
+    ports:
+      - "8080:8080"
+    depends_on:
+      - register-server
+    networks:
+      - spring
+      - gitlab-network
+    restart: always
+
+
+networks:
+ gitlab-network:
+  external: true
+ spring:
+  external: true

@@ -1,0 +1,42 @@
+.logo {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 100%;
+  border: 2px solid black;
+  margin: 10px auto;
+  padding: 2px;
+}
+
+.row {
+  display: grid;
+}
+
+mat-card {
+  width: 30rem;
+  margin: auto;
+}
+
+.login {
+  display: grid;
+  width: 80%;
+  margin-top: 3rem;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.container {
+  padding-top: 5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mat-mdc-raised-button.mat-primary[disabled=true]{
+  background-color: #e0e0e0 !important;
+}
+.mat-mdc-raised-button.mat-primary {
+  background-color: #6596c3 !important;
+}

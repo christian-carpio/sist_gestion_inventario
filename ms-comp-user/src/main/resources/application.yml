@@ -1,0 +1,50 @@
+server:
+  port: ${PORT:${SERVER_PORT:0}}
+  servlet:
+    context-path: /user
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER:http://localhost:8761/eureka}
+    registry-fetch-interval-seconds: 30
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+
+spring:
+  application:
+    name: MICROSERVICE-USUARIO
+  # Configuracion para base de datos
+  jpa:
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    generate-ddl: true
+
+  datasource:
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:password-msvc-user}
+    url: jdbc:postgresql://${DB_HOST:localhost:5533}/${DB_DATABASE:db-msvc-user}
+    hikari:
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+      minimum-idle: 5
+      maximumPoolSize: 20
+
+
+jwt:
+  secret: ${SECRET:ueesmgra-123540}
+  expiration: ${EXPIRATE:3600000}
+
+cloudinary:
+  name: ${CLOUDINARY_NAME:name}
+  apiKey: ${CLOUDINARY_API_KEY:apikey}
+  apiSecret: ${CLOUDINARY_API_SECRET:apiSecret}
+  imgBaseUrl: https://res.cloudinary.com/dcvyg15td/image/upload/v1702693456/ju5bf2li7q4ydbnebvfa.jpg

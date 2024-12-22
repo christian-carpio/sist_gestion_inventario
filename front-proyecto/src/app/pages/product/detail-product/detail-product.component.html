@@ -1,0 +1,59 @@
+<div class="container mx-auto p-4">
+  <div class="mt-4">
+    <div class="bg-white shadow-md rounded-lg">
+      <div class="bg-gray-900 text-white py-2 px-4 rounded-t-lg">
+        Detalle Producto
+      </div>
+      <div *ngIf="product" class="p-4">
+        <h5 class="text-2xl font-semibold">{{ product.nombre }}</h5>
+        <p class="text-gray-700">{{ product.descripcion }}</p>
+
+        <h6 class="mt-4 text-xl">Requerimientos:</h6>
+        <div class="overflow-x-auto">
+          <table class="w-full table-auto mt-2">
+            <thead>
+            <tr class="bg-gray-200">
+              <th class="px-4 py-2">Requerimiento ID</th>
+              <th class="px-4 py-2">Cantidad</th>
+              <th class="px-4 py-2">InsumoId</th>
+              <th class="px-4 py-2">Nombre Insumo</th>
+              <th class="px-4 py-2">Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let insumo of product.requerimientoDTOSet">
+              <td class="px-4 py-2">{{ insumo.id }}</td>
+              <td class="px-4 py-2">{{ insumo.cantidad }}</td>
+              <td class="px-4 py-2">{{ insumo.insumoId }}</td>
+              <td class="px-4 py-2">{{ getNombreInsumo(insumo.insumoId) }}</td>
+              <td class="px-4 py-2">
+                <button type="button" class="bg-red-500 text-white py-1 px-2 rounded-md" (click)="eliminarRequerimiento(insumo.id)">
+                  Eliminar
+                </button>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="mt-4 text-xl">Agregar Requerimiento</h3>
+        <form [formGroup]="requerimientoForm" (ngSubmit)="onAgregarRequerimiento()" class="mt-2">
+          <div class="mb-4">
+            <label for="insumoId" class="block text-gray-800">Insumo</label>
+            <select id="insumoId" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-400" formControlName="insumoId">
+              <option value="" disabled selected>Selecciona un insumo</option>
+              <option *ngFor="let insumo of insumos" [value]="insumo.id">{{ insumo.nombre }}</option>
+            </select>
+          </div>
+          <div class="mb-4">
+            <label for="cantidad" class="block text-gray-800">Cantidad</label>
+            <input type="number" id="cantidad" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-400" formControlName="cantidad">
+          </div>
+          <div class="mb-4">
+            <button type="submit" class="bg-blue-800 text-white py-2 px-4 rounded-md w-full" [disabled]="requerimientoForm.invalid">Agregar Requerimiento</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

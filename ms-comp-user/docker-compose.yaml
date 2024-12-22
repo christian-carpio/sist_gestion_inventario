@@ -1,0 +1,77 @@
+version: "3.1"
+services:  
+  register-server:
+    container_name: register-server
+    image: $DOCKER_HUB_USERNAME/p2-register-server:latest
+    environment:
+      - PORT=8761
+    ports:
+      - "8761:8761"
+    networks:
+      - spring
+      - gitlab-network
+    restart: always
+
+  api-gateway:
+    container_name: api-gateway
+    image: $DOCKER_HUB_USERNAME/p2-api-gateway:latest
+    environment:
+      - ALLOWED_ORIGINS=*
+      - SECRET=ueesmgra-123540
+      - EUREKA_SERVER=http://register-server:8761/eureka/=value
+    ports:
+      - "8080:8080"
+    depends_on:
+      - register-server
+    networks:
+      - spring
+      - gitlab-network
+    restart: always
+
+  db-user:
+    container_name: db-user
+    image: postgres:14-alpine
+    ports:
+      - "5533:5432"
+    environment:
+      POSTGRES_PASSWORD: password-msvc-user
+      POSTGRES_DB: db-msvc-user
+    volumes:
+      - data-postgres-user:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - spring
+      - gitlab-network
+
+  msvc-user:
+    container_name: msvc-user
+    image: $DOCKER_HUB_USERNAME/$CI_PROJECT_NAME:latest
+    environment:
+      - DB_HOST=db-user:5432
+      - DB_DATABASE=db-ms-user
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=password-msvc-user
+      - EUREKA_SERVER=http://register-server:8761/eureka/
+      - SECRET=ueesmgra-123540
+      - EXPIRATE=3600000
+      - CLOUDINARY_NAME=dcvyg15td
+      - CLOUDINARY_API_KEY=987271126554534
+      - CLOUDINARY_API_SECRET=d2aZ8h5_3NUKQUhoCPvO5u07db4
+    networks:
+      - spring
+      - gitlab-network
+    depends_on:
+      - db-user
+      - register-server
+      - api-gateway
+    restart: always
+
+volumes:
+  data-postgres-user:
+
+
+networks:
+ gitlab-network:
+  external: true
+ spring:
+  external: true

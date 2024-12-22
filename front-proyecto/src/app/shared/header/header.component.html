@@ -1,0 +1,26 @@
+<nav class="bg-gray-900 text-white py-4" #navbar>
+  <div class="container mx-auto flex flex-col lg:flex-row justify-between items-center">
+    <div class="flex items-center justify-between w-full lg:w-auto">
+      <a class="text-2xl font-bold" routerLink="/home">Inventario</a>
+      <button class="lg:hidden block text-2xl text-white" (click)="toggleMobileMenu()">
+        ☰
+      </button>
+    </div>
+    <div [class.hidden]="!mobileMenuOpen" class="lg:flex flex-col lg:flex-row space-x-4 w-full lg:w-auto">
+      <ng-container *ngIf="hasRole('ROLE_REGISTER_PRODUCT')">
+        <a class="hover:text-blue-400" routerLink="/home">Productos</a>
+      </ng-container>
+      <ng-container *ngIf="hasRole('ROLE_REGISTER_PRODUCT')">
+        <a class="hover:text-blue-400" routerLink="/inventario">Insumos</a>
+      </ng-container>
+      <ng-container *ngIf="!isLogged(); else logout">
+        <a class="hover:text-blue-400" routerLink="/login">Login</a>
+        <a class="hover:text-blue-400" routerLink="/register">Registro</a>
+      </ng-container>
+      <ng-template #logout>
+        <a class="hover:text-blue-400" routerLink="/info-user">{{username | titlecase}}</a>
+        <a class="hover:text-blue-400" (click)="logOut()">LogOut</a>
+      </ng-template>
+    </div>
+  </div>
+</nav>

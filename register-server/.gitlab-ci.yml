@@ -1,0 +1,81 @@
+
+variables:
+  DOCKER_DRIVER: overlay2
+  
+  MAVEN_OPTS: >-
+    -Dhttps.protocols=TLSv1.2
+    -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository
+    -Dorg.slf4j.simpleLogger.showDateTime=true
+    -Djava.awt.headless=true
+    -DskipTests
+
+  MAVEN_CLI_OPTS: >-
+    --batch-mode
+    --errors
+    --fail-at-end
+    --show-version
+    --no-transfer-progress
+    -DinstallAtEnd=true
+    -DdeployAtEnd=true
+
+
+stages:
+ - build
+ - test
+ - deploy
+
+register-server-build:
+  image: maven:3.8.5-openjdk-17-slim
+  stage: build
+  script: 
+    - 'mvn  $MAVEN_OPTS $MAVEN_CLI_OPTS clean package'
+  artifacts:
+    paths:
+      - target/*.jar
+    expire_in: 24 h
+
+maven-test:
+  image: maven:3.8.5-openjdk-17-slim
+  stage: test
+  script: 
+  - 'mvn $MAVEN_OPTS $MAVEN_CLI_OPTS verify test'
+    
+  artifacts:
+    paths:
+      - target/*.jar
+
+docker-build-push-image:
+  stage: deploy
+  services:
+   - docker:dind
+  before_script:
+  # Docker HUB login
+    - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
+
+  script:
+
+    - docker build -t $DOCKER_HUB_USERNAME/$CI_PROJECT_NAME:$CI_COMMIT_SHORT_SHA .
+    - docker push $DOCKER_HUB_USERNAME/$CI_PROJECT_NAME:$CI_COMMIT_SHORT_SHA
+    - docker tag $DOCKER_HUB_USERNAME/$CI_PROJECT_NAME:$CI_COMMIT_SHORT_SHA $DOCKER_HUB_USERNAME/$CI_PROJECT_NAME:latest
+    - docker push $DOCKER_HUB_USERNAME/$CI_PROJECT_NAME:latest
+
+docker-deploy-microservice:
+  needs:
+    - job: docker-build-push-image
+  image: docker/compose
+  stage: deploy 
+  services:
+   - docker:dind
+
+  script:
+    - docker-compose version
+    - docker-compose up -d
+    - sleep 5
+    - docker ps
+    - sleep 5
+    - docker ps
+    - sleep 5
+    - docker ps
+    - sleep 5
+    - sleep 5
+    - docker-compose down -v

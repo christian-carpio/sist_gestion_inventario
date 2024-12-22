@@ -1,0 +1,19 @@
+version: "3.1"
+services:  
+  register-server:
+    container_name: register-server
+    image: $DOCKER_HUB_USERNAME/$CI_PROJECT_NAME:latest
+    environment:
+      - PORT=8761
+    ports:
+      - "8761:8761"
+    networks:
+      - spring
+      - gitlab-network
+    restart: always
+
+networks:
+ gitlab-network:
+  external: true
+ spring:
+  external: true

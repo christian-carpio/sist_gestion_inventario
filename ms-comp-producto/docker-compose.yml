@@ -1,0 +1,73 @@
+version: "3.1"
+services:  
+  register-server:
+    container_name: register-server
+    image: $DOCKER_HUB_USERNAME/p2-register-server:latest
+    environment:
+      - PORT=8761
+    ports:
+      - "8761:8761"
+    networks:
+      - spring
+      - gitlab-network
+    restart: always
+
+  api-gateway:
+    container_name: api-gateway
+    image: $DOCKER_HUB_USERNAME/p2-api-gateway:latest
+    environment:
+      - ALLOWED_ORIGINS=*
+      - SECRET=ueesmgra-123540
+      - EUREKA_SERVER=http://register-server:8761/eureka/=value
+    ports:
+      - "8080:8080"
+    depends_on:
+      - register-server
+    networks:
+      - spring
+      - gitlab-network
+    restart: always
+
+  db-product:
+    container_name: db-product
+    image: postgres:14-alpine
+    ports:
+      - "5532:5432"
+    environment:
+      POSTGRES_PASSWORD: password-msvc-product
+      POSTGRES_DB: db-msvc-product
+    volumes:
+      - data-postgres-product:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - spring
+      - gitlab-network
+
+  msvc-product:
+    container_name: msvc-product
+    image: $DOCKER_HUB_USERNAME/$CI_PROJECT_NAME:latest
+    environment:
+      - DB_HOST=db-product:5432
+      - DB_DATABASE=db-msvc-product
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=password-msvc-product
+      - EUREKA_SERVER=http://register-server:8761/eureka/
+    networks:
+      - spring
+      - gitlab-network
+    depends_on:
+      - db-product
+      - register-server
+      - api-gateway
+    restart: always
+
+volumes:
+  data-postgres-user:
+  data-postgres-product:
+  data-postgres-storage:
+
+networks:
+ gitlab-network:
+  external: true
+ spring:
+  external: true

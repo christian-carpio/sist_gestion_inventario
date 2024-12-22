@@ -1,0 +1,54 @@
+<div class="container mx-auto p-4">
+  <div class="mt-8">
+    <button
+      class="bg-red-800 text-white py-2 px-4 rounded-md w-full mb-4"
+      *ngIf="hasRole('ROLE_REGISTER_PRODUCT')"
+      routerLink="/register-product"
+    >
+      Registrar
+    </button>
+    <h1 class="text-3xl font-semibold text-center mb-4">Lista de productos</h1>
+    <div class="overflow-x-auto">
+      <table class="w-full table-auto">
+        <thead>
+        <tr class="bg-gray-900 text-white">
+          <th class="px-4 py-2 hidden md:table-cell">Id</th>
+          <th class="px-4 py-2">Nombre</th>
+          <th class="px-4 py-2">Precio</th>
+          <th class="px-4 py-2 hidden md:table-cell">Descripción</th>
+          <th *ngIf="hasRole('ROLE_REGISTER_PRODUCT')" class="px-4 py-2 hidden md:table-cell">Usuario Creador</th>
+          <th *ngIf="hasRole('ROLE_REGISTER_PRODUCT')" class="px-4 py-2">Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr
+          *ngFor="let item of products; let i = index"
+          class="{{ i % 2 === 0 ? 'bg-gray-100' : 'bg-gray-200' }}"
+        >
+          <td class="px-4 py-2 hidden md:table-cell">{{ i + 1 }}</td>
+          <td class="px-4 py-2">{{ item.nombre | titlecase }}</td>
+          <td class="px-4 py-2">{{ item.precio | currency }}</td>
+          <td class="px-4 py-2 hidden md:table-cell">{{ item.descripcion }}</td>
+          <td *ngIf="hasRole('ROLE_REGISTER_PRODUCT')" class="px-4 py-2 hidden md:table-cell">{{ item.nombreCreador }}</td>
+          <td *ngIf="hasRole('ROLE_REGISTER_PRODUCT')" class="px-4 py-2">
+            <button
+              class="bg-blue-800 text-white py-1 px-2 rounded-md me-2"
+              routerLink="/actualizar-product/{{ item.id }}"
+            >
+              <i class="bi bi-pencil"></i>
+              <span class="hidden md:inline">Editar</span>
+            </button>
+            <button
+              class="bg-green-800 text-white py-1 px-2 rounded-md"
+              routerLink="/product-detail/{{ item.id }}"
+            >
+              <i class="bi bi-eye"></i>
+              <span class="hidden md:inline">Ver</span>
+            </button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

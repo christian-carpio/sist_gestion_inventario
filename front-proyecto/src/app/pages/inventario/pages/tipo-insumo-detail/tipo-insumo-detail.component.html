@@ -1,0 +1,57 @@
+<div class="container mt-4 mx-auto flex justify-center">
+<div class="lg:w-2/3">
+    <div class="bg-white shadow-md rounded-lg p-4 text-gray-800">
+      <ng-container *ngIf="tipoInsumo">
+        <h2 class="text-center text-2xl font-semibold">Insumos Detalle</h2>
+        <p><strong>ID:</strong> {{ tipoInsumo.id }}</p>
+        <p><strong>Nombre:</strong> {{ tipoInsumo.nombre }}</p>
+        <p><strong>Descripción:</strong> {{ tipoInsumo.descripcion }}</p>
+
+        <div class="text-center mb-3">
+          <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                  [routerLink]="['/register-insumo-detalle', tipoInsumo.id]">
+            Agregar Inventario
+          </button>
+        </div>
+
+        <h3 class="text-center text-xl font-semibold">Insumos</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full table-auto">
+            <thead>
+            <tr class="bg-gray-200 text-gray-800">
+              <th class="px-4 py-2">ID</th>
+              <th class="px-4 py-2">Cantidad</th>
+              <th class="px-4 py-2 hidden md:table-cell">Fecha de Fabricación</th>
+              <th class="px-4 py-2 hidden md:table-cell">Fecha de Expiración</th>
+              <th class="px-4 py-2 ">Es Caducado</th>
+              <th class="px-4 py-2 hidden md:table-cell">Insumo ID</th>
+              <th class="px-4 py-2">Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let insumo of tipoInsumo.insumoDTOSet"
+                class="{{ tipoInsumo.insumoDTOSet.indexOf(insumo) % 2 === 0 ? 'bg-gray-100' : 'bg-gray-200' }}">
+              <td class="px-4 py-2">{{ insumo.id }}</td>
+              <td class="px-4 py-2">{{ insumo.cantidad }}</td>
+              <td class="px-4 py-2 hidden md:table-cell">{{ insumo.fechaFabricacion }}</td>
+              <td class="px-4 py-2 hidden md:table-cell">{{ insumo.fechaExpiracion }}</td>
+              <td class="px-4 py-2">{{ insumo.esCaducado ? 'Sí' : 'No' }}</td>
+              <td class="px-4 py-2 hidden md:table-cell">{{ insumo.insumoIdpk }}</td>
+              <td class="px-4 py-2">
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded-md me-2 md:me-0"
+                        [routerLink]="['/actualizar-insumo', insumo.id]">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-md"
+                        (click)="delete(insumo.id)">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>

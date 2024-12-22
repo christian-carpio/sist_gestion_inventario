@@ -1,0 +1,139 @@
+stages:
+  - build
+  - test
+  - deploy
+
+variables:
+  DOCKER_DRIVER: overlay2
+  
+  MAVEN_OPTS: >-
+    -Dhttps.protocols=TLSv1.2
+    -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository
+    -Dorg.slf4j.simpleLogger.showDateTime=true
+    -Djava.awt.headless=true
+    -DskipTests
+
+  MAVEN_CLI_OPTS: >-
+    --batch-mode
+    --errors
+    --fail-at-end
+    --show-version
+    --no-transfer-progress
+    -DinstallAtEnd=true
+    -DdeployAtEnd=true
+  
+  DOCKER_IMAGE_NAME: $CI_PROJECT_NAME
+  SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
+  GIT_DEPTH: "0"
+
+build:
+  image: maven:3.8.5-openjdk-17-slim
+  stage: build
+  script: 
+    - cd ./register-server
+    - 'mvn  $MAVEN_OPTS $MAVEN_CLI_OPTS clean package'
+    - cd ..
+
+    - cd ./api-gateway
+    - 'mvn  $MAVEN_OPTS $MAVEN_CLI_OPTS clean package'
+    - cd ..
+
+    - cd ./ms-comp-user
+    - 'mvn  $MAVEN_OPTS $MAVEN_CLI_OPTS clean package'
+    - cd ..
+
+    - cd ./ms-comp-inventario
+    - 'mvn  $MAVEN_OPTS $MAVEN_CLI_OPTS clean package'
+    - cd ..
+
+    - cd ./ms-comp-producto
+    - 'mvn  $MAVEN_OPTS $MAVEN_CLI_OPTS clean package'
+    - cd ..
+
+
+
+  artifacts:
+    paths:
+      - target/*.jar
+    expire_in: 24 h
+
+maven-test:
+  image: maven:3.8.5-openjdk-17-slim
+  stage: test
+  script: 
+  
+
+    - cd ./register-server
+    - 'mvn $MAVEN_OPTS $MAVEN_CLI_OPTS verify test'
+    - cd ..
+
+    - cd ./api-gateway
+    - 'mvn $MAVEN_OPTS $MAVEN_CLI_OPTS verify test'
+    - cd ..
+
+    - cd ./ms-comp-user
+    - 'mvn $MAVEN_OPTS $MAVEN_CLI_OPTS verify test'
+    - cd ..
+
+    - cd ./ms-comp-inventario
+    - 'mvn $MAVEN_OPTS $MAVEN_CLI_OPTS verify test'
+    - cd ..
+
+    - cd ./ms-comp-producto
+    - 'mvn $MAVEN_OPTS $MAVEN_CLI_OPTS verify test'
+    - cd ..
+
+
+  artifacts:
+    paths:
+      - target/*.jar
+
+
+
+
+
+build-imagenes:
+  stage: deploy
+  image: docker
+  services:
+    - docker:dind
+  before_script:
+    - docker info
+    - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
+  script:
+    - docker build -t christiancarpio/p2-api-gateway:latest ./api-gateway
+    - docker push christiancarpio/p2-api-gateway:latest
+
+    - docker build -t christiancarpio/p2-register-server:latest ./register-server
+    - docker push christiancarpio/p2-register-server:latest
+
+    - docker build -t christiancarpio/p2-ms-user:latest ./ms-comp-user
+    - docker push christiancarpio/p2-ms-user:latest
+
+    - docker build -t christiancarpio/p2-ms-producto:latest ./ms-comp-producto
+    - docker push christiancarpio/p2-ms-producto:latest
+
+    - docker build -t christiancarpio/p2-ms-inventario:latest ./ms-comp-inventario
+    - docker push christiancarpio/p2-ms-inventario:latest
+    
+    - docker build -t christiancarpio/p2-front:latest ./front-proyecto
+    - docker push christiancarpio/p2-front:latest
+
+
+
+docker-compose-deploy:
+  stage: deploy
+  image: docker/compose:1.29.2
+  services:
+    - docker:dind
+  before_script:
+    - docker info
+  script:
+    - docker-compose version
+    - docker-compose up -d
+    - sleep 5
+    - docker ps
+    - sleep 5
+    - docker ps
+    - docker-compose down -v
+    - docker ps
